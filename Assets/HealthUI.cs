@@ -17,6 +17,22 @@ public class HealthUI : MonoBehaviour, IHealthObserver
         }
     }
 
+    public void OnEnable()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnHealthChanged +=OnHealthChanged;
+        }
+    }
+
+    public void OnDisable()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnHealthChanged -= OnHealthChanged;
+        }
+    }
+
     public void OnHealthChanged(int currentHealth, int maxHealth)
     {
         if (healthText != null)

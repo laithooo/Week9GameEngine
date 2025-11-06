@@ -8,13 +8,18 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] int maxHealth = 100;
     [SerializeField] int startingHealth = 100;
 
-    [SerializeField] int collisionDamage = 10;  
+    [SerializeField] int collisionDamage = 10;
+
+    private bool isDirty = true;
 
     int currentHealth;
     readonly List<IHealthObserver> observers = new List<IHealthObserver>();
 
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
+
+    public event System.Action<int, int> OnHealthChanged;
+
 
     void Awake()
     {
@@ -35,14 +40,20 @@ public class PlayerHealth : MonoBehaviour
 
     public void UnregisterObserver(IHealthObserver observer)
     {
+        SetDirty();
         if (observer == null) return;
         observers.Remove(observer);
     }
 
     void NotifyObservers()
     {
+
+        if (isDirty) return;
+
         foreach (var obs in observers)
             obs.OnHealthChanged(currentHealth, maxHealth);
+
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     public void TakeDamage(int amount)
@@ -71,4 +82,9 @@ public class PlayerHealth : MonoBehaviour
 
     }
 
+
+    public void SetDirty() //lets game know that its dirty and deactivates the health ui to lessen the load on memory
+    {
+        isDirty = true;
+    }
 }
